@@ -1,0 +1,72 @@
+name = "wisetransact-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+account_id = "d69a6ec27e1ba3f2e85675eacb522a64"
+
+[vars]
+APP_ENV = "development"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wisetransact-db-dev"
+database_id = "2dad05ef-51c4-473b-868b-5c3d4458b1e8"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "29386365573d4e0e9d87d2c0aa6de75b"
+preview_id = "7442ad34eddf45eea288bcc39dff39db"
+
+[[kv_namespaces]]
+binding = "FEATURE_FLAGS"
+id = "117bcd8fd7aa420e811892324c54405f"
+preview_id = "c8e5466f4aca4913b558e0dc96ee1464"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "11574688a9e042d8884c669ba74ec08d"
+preview_id = "a902180db00743daa81184ba65e256eb"
+
+[env.staging]
+name = "wisetransact-api-staging"
+vars = { APP_ENV = "staging" }
+
+  [[env.staging.d1_databases]]
+  binding = "DB"
+  database_name = "wisetransact-db-staging"
+  database_id = "65bedeba-5402-436f-96c5-6583d6da4aa7"
+
+  [[env.staging.kv_namespaces]]
+  binding = "SESSIONS"
+  id = "c51fb904bcf947c0b79f5a4dc8017978"
+
+  [[env.staging.kv_namespaces]]
+  binding = "FEATURE_FLAGS"
+  id = "8e7024eca87641c99e20b686e8890111"
+
+  [[env.staging.kv_namespaces]]
+  binding = "CACHE"
+  id = "60d45544b17b47f5bbfac5a25b1406ef"
+
+
+[env.prod]
+name = "wisetransact-api-prod"
+vars = { APP_ENV = "production" }
+
+  [[env.prod.d1_databases]]
+  binding = "DB"
+  database_name = "wisetransact-db-prod"
+  database_id = "81d001c2-804a-479c-a871-bf4108c98b26"
+
+  [[env.prod.kv_namespaces]]
+  binding = "SESSIONS"
+  id = "f27cc2da38734adc8b911a3941e214c8"
+
+  [[env.prod.kv_namespaces]]
+  binding = "FEATURE_FLAGS"
+  id = "c6add0e653df40ea8fe81d09424bbb38"
+
+  [[env.prod.kv_namespaces]]
+  binding = "CACHE"
+  id = "b46f27c374584b82a8325c0f53dcc4b4"
+

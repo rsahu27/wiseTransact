@@ -1,0 +1,3 @@
+# Copy this file to .dev.vars (gitignored) and fill in real values for local development
+JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+FX_API_KEY=your-fx-api-key
