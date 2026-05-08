@@ -1,0 +1,25 @@
+{
+  "name": "wisetransact-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy:dev": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:prod": "wrangler deploy --env prod",
+    "type-check": "tsc --noEmit",
+    "db:migrate:dev": "wrangler d1 migrations apply wisetransact-db-dev",
+    "db:migrate:staging": "wrangler d1 migrations apply wisetransact-db-staging --env staging",
+    "db:migrate:prod": "wrangler d1 migrations apply wisetransact-db-prod --env prod",
+    "db:seed:dev": "wrangler d1 execute wisetransact-db-dev --file=./scripts/seed.sql",
+    "db:migrate:all:dev": "wrangler d1 migrations apply wisetransact-db-dev --local"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^4.90.0"
+  }
+}
