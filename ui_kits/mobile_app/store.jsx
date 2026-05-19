@@ -57,21 +57,13 @@ const fmtINR = (n) => {
   return "₹" + abs.toLocaleString("en-IN", { maximumFractionDigits: 0 });
 };
 
-const DEFAULT_TX = [
-  { id: 1, label: "Swiggy", sub: "Food & Dining · UPI", amount: "-₹340", amountNum: 340, type: "expense", category: "Food & Dining", account: "HDFC Savings", date: "5 May 2026", purpose: "Personal", mode: "UPI", source: "SMS Paste" },
-  { id: 2, label: "Salary — Acme", sub: "Salary · HDFC Savings", amount: "+₹62,400", amountNum: 62400, type: "income", category: "Salary", account: "HDFC Savings", date: "1 May 2026", mode: "Bank Transfer" },
-  { id: 3, label: "Netflix", sub: "Entertainment · Card", amount: "-₹649", amountNum: 649, type: "expense", category: "Entertainment", account: "ICICI Credit Card", date: "4 May 2026", mode: "Card" },
-  { id: 4, label: "HDFC → ICICI", sub: "Transfer · Bank", amount: "₹5,000", amountNum: 5000, type: "transfer", account: "HDFC Savings", date: "4 May 2026", mode: "Bank Transfer" },
-  { id: 5, label: "Uber", sub: "Transport · UPI", amount: "-₹180", amountNum: 180, type: "expense", category: "Transport", account: "HDFC Savings", date: "3 May 2026", mode: "UPI" },
-];
-
 const loadTx = () => {
   try {
     const raw = localStorage.getItem(WT_TX_KEY);
-    if (!raw) return DEFAULT_TX;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : DEFAULT_TX;
-  } catch { return DEFAULT_TX; }
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
 };
 const saveTx = (tx) => { try { localStorage.setItem(WT_TX_KEY, JSON.stringify(tx)); } catch {} };
 

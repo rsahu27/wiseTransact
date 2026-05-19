@@ -265,16 +265,32 @@ section { padding: 96px 24px; }
 .screens-section h2, .screens-section > .section-inner > p { color: #fff; }
 .screens-section > .section-inner > p { color: rgba(255,255,255,0.6); }
 .screens-scroll {
-  display: flex; gap: 24px;
+  display: flex; gap: 20px; align-items: flex-start;
   margin-top: 48px;
   overflow-x: auto;
-  padding-bottom: 16px;
+  padding-bottom: 24px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 .screens-scroll::-webkit-scrollbar { display: none; }
+.screen-pill {
+  flex-shrink: 0; align-self: center;
+  background: rgba(255,255,255,0.1); color: var(--emerald-300);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px; padding: 5px 14px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap;
+}
 .screen-card {
   flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.screen-label {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.screen-frame {
   width: 200px; height: 412px;
   background: #111;
   border-radius: 32px;
@@ -520,37 +536,83 @@ footer p { font-size: 12px; color: rgba(255,255,255,0.25); line-height: 1.7; }
     <h2>Every screen, live.</h2>
     <p>The prototype below is the real thing — click through it in the hero or scroll through individual screens here.</p>
     <div class="screens-scroll">
-      <!-- Splash -->
+      <div class="screen-pill">Onboarding</div>
+
       <div class="screen-card">
-        <div class="screen-inner">
-          <iframe src="web/index.html#splash" scrolling="no" title="Splash"></iframe>
-        </div>
+        <div class="screen-label">Splash</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Splash" class="nav-frame" data-nav="[]"></iframe></div></div>
       </div>
-      <!-- Home -->
+
       <div class="screen-card">
-        <div class="screen-inner">
-          <iframe src="web/index.html" scrolling="no" title="Home" id="home-frame"></iframe>
-        </div>
+        <div class="screen-label">Your name</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Name" class="nav-frame" data-nav='["splash"]'></iframe></div></div>
       </div>
-      <!-- Transactions -->
+
       <div class="screen-card">
-        <div class="screen-inner">
-          <iframe src="web/index.html" scrolling="no" title="Transactions"></iframe>
-        </div>
+        <div class="screen-label">Set up accounts</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Accounts" class="nav-frame" data-nav='["splash","onb-name"]'></iframe></div></div>
       </div>
-      <!-- Reports -->
+
       <div class="screen-card">
-        <div class="screen-inner">
-          <iframe src="web/index.html" scrolling="no" title="Reports"></iframe>
-        </div>
+        <div class="screen-label">Data warning</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Data" class="nav-frame" data-nav='["splash","onb-name","onb-accounts"]'></iframe></div></div>
       </div>
-      <!-- Add Transaction -->
+
       <div class="screen-card">
-        <div class="screen-inner">
-          <iframe src="web/index.html" scrolling="no" title="Add Transaction"></iframe>
-        </div>
+        <div class="screen-label">Disclaimer</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Disclaimer" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data"]'></iframe></div></div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">Privacy</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Privacy" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data","onb-disclaimer"]'></iframe></div></div>
+      </div>
+
+      <div class="screen-pill">Core app</div>
+
+      <div class="screen-card">
+        <div class="screen-label">Home</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Home" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data","onb-disclaimer","onb-privacy"]'></iframe></div></div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">Add transaction</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Add" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data","onb-disclaimer","onb-privacy","app","add"]'></iframe></div></div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">Transactions</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Transactions" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data","onb-disclaimer","onb-privacy","app","txns"]'></iframe></div></div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-label">Reports</div>
+        <div class="screen-frame"><div class="screen-inner"><iframe src="ui_kits/mobile_app/index.html" scrolling="no" title="Reports" class="nav-frame" data-nav='["splash","onb-name","onb-accounts","onb-data","onb-disclaimer","onb-privacy","app","reports"]'></iframe></div></div>
       </div>
     </div>
+
+<script>
+// Auto-click through the nav steps for each showcase iframe after it loads
+document.querySelectorAll('.nav-frame').forEach(iframe => {
+  const steps = JSON.parse(iframe.dataset.nav || '[]');
+  if (!steps.length) return;
+  iframe.addEventListener('load', () => {
+    let i = 0;
+    const tick = () => {
+      if (i >= steps.length) return;
+      try {
+        const doc = iframe.contentDocument;
+        // Find and click the primary / continue button
+        const btn = doc.querySelector('button.btn.primary:not(:disabled), button.btn.active:not(:disabled)');
+        if (btn) btn.click();
+      } catch(e) {}
+      i++;
+      setTimeout(tick, 300);
+    };
+    setTimeout(tick, 600);
+  });
+});
+</script>
   </div>
 </section>
 
