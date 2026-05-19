@@ -1,0 +1,159 @@
+/* ============================================================
+   WiseTransact — Colors & Type
+   Reference: Figma Make plugin (uploads/code.js) + PRD §11
+   Personality: quiet, professional, restrained (Linear / Things 3 / Apple Stocks)
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  /* ---------- BRAND PALETTE ---------- */
+  /* Emerald — primary brand */
+  --emerald-900: #064e3b;
+  --emerald-700: #047857;
+  --emerald-500: #10b981;
+  --emerald-300: #6ee7b7;
+  --emerald-50:  #ecfdf5;
+
+  /* Neutrals (gray) */
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50:  #f9fafb;
+  --white:    #ffffff;
+  --black:    #000000;
+
+  /* Semantic accents */
+  --rose-500:  #f43f5e;  /* Expense / destructive */
+  --rose-100:  #ffe4e6;
+  --sky-500:   #0ea5e9;  /* Transfer / info */
+  --sky-100:   #e0f2fe;
+  --amber-500: #f59e0b;  /* Warning */
+  --amber-100: #fef3c7;
+  --violet-500:#8b5cf6;  /* Category accent */
+  --violet-100:#ede9fe;
+
+  /* ---------- SEMANTIC TOKENS (theming-ready, see PRD §9.2) ---------- */
+  --bg-app:           var(--gray-50);
+  --bg-surface:       var(--white);
+  --bg-surface-alt:   var(--gray-50);
+  --bg-elevated:      var(--white);
+  --bg-brand:         var(--emerald-700);
+  --bg-brand-strong:  var(--emerald-900);
+  --bg-brand-soft:    var(--emerald-50);
+
+  --fg-primary:       var(--gray-900);
+  --fg-secondary:     var(--gray-600);
+  --fg-muted:         var(--gray-400);
+  --fg-on-brand:      var(--white);
+  --fg-brand:         var(--emerald-700);
+
+  --border-default:   var(--gray-200);
+  --border-subtle:    var(--gray-100);
+  --border-strong:    var(--gray-300);
+  --border-focus:     var(--emerald-500);
+
+  --income-fg:        var(--emerald-700);
+  --income-bg:        var(--emerald-50);
+  --expense-fg:       var(--rose-500);
+  --expense-bg:       var(--rose-100);
+  --transfer-fg:      var(--sky-500);
+  --transfer-bg:      var(--sky-100);
+  --warning-fg:       var(--amber-500);
+  --warning-bg:       var(--amber-100);
+
+  /* ---------- TYPE ---------- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (mobile, 390-pt design width) */
+  --t-display:   32px;   /* Splash brand mark */
+  --t-h1:        28px;   /* Onboarding hero */
+  --t-h2:        22px;   /* Home month label */
+  --t-h3:        20px;   /* Screen titles */
+  --t-h4:        17px;   /* Section / sheet titles */
+  --t-body-lg:   16px;   /* Buttons, primary CTAs */
+  --t-body:      14px;   /* Default body */
+  --t-body-sm:   13px;   /* Secondary body */
+  --t-caption:   12px;   /* Labels, metadata */
+  --t-micro:     11px;   /* Eyebrows, tab labels */
+  --t-mini:      10px;   /* Bottom nav */
+
+  /* Weights */
+  --w-regular:  400;
+  --w-medium:   500;
+  --w-semibold: 600;
+  --w-bold:     700;
+
+  /* Line-heights */
+  --lh-tight:   1.15;
+  --lh-snug:    1.35;
+  --lh-normal:  1.5;
+
+  /* ---------- SPACING ---------- */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* ---------- RADII ---------- */
+  --r-xs:  4px;
+  --r-sm:  6px;
+  --r-md:  8px;
+  --r-lg:  10px;
+  --r-xl:  12px;
+  --r-2xl: 16px;
+  --r-pill:9999px;
+
+  /* ---------- ELEVATION ---------- */
+  --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 12px 32px rgba(17, 24, 39, 0.12);
+  --shadow-fab:0 6px 20px rgba(4, 120, 87, 0.32);
+
+  /* ---------- MOTION ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* ---------- DEVICE / LAYOUT ---------- */
+  --screen-w: 390px;
+  --screen-h: 844px;
+  --statusbar-h: 44px;
+  --tabbar-h: 83px;
+  --tap-min: 44px;          /* PRD §9.4 accessibility */
+}
+
+/* ============================================================
+   SEMANTIC TYPOGRAPHY
+   ============================================================ */
+html { font-family: var(--font-sans); color: var(--fg-primary); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg-app); font-size: var(--t-body); line-height: var(--lh-normal); }
+
+h1, .ws-h1 { font-size: var(--t-h1); font-weight: var(--w-bold); line-height: var(--lh-tight); letter-spacing: -0.3px; margin: 0; }
+h2, .ws-h2 { font-size: var(--t-h2); font-weight: var(--w-semibold); line-height: var(--lh-snug); letter-spacing: -0.2px; margin: 0; }
+h3, .ws-h3 { font-size: var(--t-h3); font-weight: var(--w-semibold); line-height: var(--lh-snug); margin: 0; }
+h4, .ws-h4 { font-size: var(--t-h4); font-weight: var(--w-semibold); line-height: var(--lh-snug); margin: 0; }
+
+.ws-display  { font-size: var(--t-display); font-weight: var(--w-bold); letter-spacing: -0.5px; line-height: var(--lh-tight); }
+.ws-body     { font-size: var(--t-body); font-weight: var(--w-regular); line-height: var(--lh-normal); }
+.ws-body-sm  { font-size: var(--t-body-sm); font-weight: var(--w-regular); line-height: var(--lh-normal); }
+.ws-caption  { font-size: var(--t-caption); font-weight: var(--w-regular); line-height: var(--lh-normal); color: var(--fg-secondary); }
+.ws-micro    { font-size: var(--t-micro); font-weight: var(--w-medium); letter-spacing: 0.2px; color: var(--fg-muted); }
+.ws-eyebrow  { font-size: var(--t-micro); font-weight: var(--w-semibold); letter-spacing: 0.6px; text-transform: uppercase; color: var(--fg-muted); }
+.ws-amount   { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; font-weight: var(--w-semibold); letter-spacing: -0.2px; }
+.ws-mono     { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:var(--font-sans)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{height:32px;padding:0 14px;border-radius:16px;display:inline-flex;align-items:center;font-size:12px;font-weight:500;border:1px solid var(--border-default);background:#fff;color:var(--fg-secondary)}
+.chip.active{background:var(--emerald-700);color:#fff;border-color:var(--emerald-700)}
+.chip.tag{background:var(--emerald-50);color:var(--emerald-700);border-color:var(--emerald-500);font-weight:600}
+.chip.neutral{background:var(--gray-100);color:var(--fg-secondary);border-color:transparent}
+.lbl{font-size:10px;font-family:var(--font-mono);color:var(--fg-muted);margin-bottom:6px}
+</style></head><body>
+<div class="lbl">Filter chips</div>
+<div class="row">
+  <span class="chip active">All</span>
+  <span class="chip">Income</span>
+  <span class="chip">Expense</span>
+  <span class="chip">Transfer</span>
+</div>
+<div class="lbl">Purpose tags</div>
+<div class="row">
+  <span class="chip tag">Personal</span>
+  <span class="chip neutral">Professional</span>
+  <span class="chip neutral">Investment</span>
+  <span class="chip neutral">Tax-saving</span>
+</div></body></html>

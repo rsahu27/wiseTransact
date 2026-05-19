@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="88" height="88" role="img" aria-label="WiseTransact">
+  <circle cx="44" cy="44" r="34" fill="currentColor"></circle>
+  <g fill="#ffffff">
+    <rect x="22" y="30" width="8" height="32" rx="2"></rect>
+    <rect x="38" y="40" width="8" height="22" rx="2"></rect>
+    <rect x="54" y="30" width="8" height="32" rx="2"></rect>
+  </g>
+</svg>

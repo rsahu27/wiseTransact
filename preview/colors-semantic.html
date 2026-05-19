@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:var(--font-sans)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{border:1px solid var(--border-subtle);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.label{font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--fg-muted)}
+.amt{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:6px}
+.hex{font-size:10px;font-family:var(--font-mono);color:var(--fg-secondary)}
+</style></head><body>
+<div class="grid">
+  <div class="tile" style="background:var(--income-bg)">
+    <div class="label">Income</div>
+    <div class="amt" style="color:var(--income-fg)"><span class="dot" style="background:var(--income-fg)"></span>+₹62,400</div>
+    <div class="hex">fg #047857 · bg #ECFDF5</div>
+  </div>
+  <div class="tile" style="background:var(--expense-bg)">
+    <div class="label">Expense</div>
+    <div class="amt" style="color:var(--expense-fg)"><span class="dot" style="background:var(--expense-fg)"></span>-₹340</div>
+    <div class="hex">fg #F43F5E · bg #FFE4E6</div>
+  </div>
+  <div class="tile" style="background:var(--transfer-bg)">
+    <div class="label">Transfer</div>
+    <div class="amt" style="color:var(--transfer-fg)"><span class="dot" style="background:var(--transfer-fg)"></span>₹5,000</div>
+    <div class="hex">fg #0EA5E9 · bg #E0F2FE</div>
+  </div>
+  <div class="tile" style="background:var(--warning-bg)">
+    <div class="label">Warning</div>
+    <div class="amt" style="color:var(--warning-fg)"><span class="dot" style="background:var(--warning-fg)"></span>≥ ₹10 L</div>
+    <div class="hex">fg #F59E0B · bg #FEF3C7</div>
+  </div>
+</div></body></html>

@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:var(--font-sans);font-size:14px}
+.col{display:flex;flex-direction:column;gap:12px;max-width:340px}
+.btn{height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;border:0;cursor:pointer}
+.primary{background:var(--emerald-700);color:#fff}
+.disabled{background:var(--gray-200);color:var(--fg-muted)}
+.ghost{background:transparent;border:1px solid var(--border-default);color:var(--fg-brand)}
+.destructive{background:var(--expense-bg);color:var(--expense-fg)}
+.lbl{font-size:10px;font-family:var(--font-mono);color:var(--fg-secondary);margin-top:-6px}
+</style></head><body>
+<div class="col">
+  <button class="btn primary">Continue</button>
+  <div class="lbl">primary · emerald-700 · radius 12 · 48h</div>
+  <button class="btn disabled">Submit</button>
+  <div class="lbl">disabled · gray-200</div>
+  <button class="btn ghost">+ Add Account</button>
+  <div class="lbl">ghost · gray-200 border</div>
+  <button class="btn destructive">Delete</button>
+  <div class="lbl">destructive · rose-100</div>
+</div></body></html>

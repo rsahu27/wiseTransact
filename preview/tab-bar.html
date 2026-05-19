@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:0;background:#fff;font-family:var(--font-sans)}
+.bar{display:flex;height:83px;border-top:1px solid var(--border-default);background:#fff}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:8px;color:var(--fg-muted);font-size:10px;font-weight:500;position:relative}
+.tab.active{color:var(--emerald-700);font-weight:600}
+.tab.active::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--emerald-700);border-radius:2px}
+.tab .ico{width:24px;height:24px;border-radius:50%;background:var(--gray-100);margin-bottom:4px;display:flex;align-items:center;justify-content:center}
+.tab.active .ico{background:var(--emerald-50)}
+.tab .ico i{width:12px;height:8px;background:currentColor;border-radius:2px;display:block}
+</style></head><body>
+<div class="bar">
+  <div class="tab active"><div class="ico"><i></i></div>Home</div>
+  <div class="tab"><div class="ico"><i></i></div>Transactions</div>
+  <div class="tab"><div class="ico"><i></i></div>Reports</div>
+  <div class="tab"><div class="ico"><i></i></div>Settings</div>
+</div></body></html>

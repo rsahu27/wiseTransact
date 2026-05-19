@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:20px;background:#fff;font-family:var(--font-sans)}
+.col{display:flex;flex-direction:column;gap:14px;max-width:340px}
+.lbl{font-size:12px;font-weight:500;color:var(--fg-secondary)}
+.field{height:48px;border:1px solid var(--border-default);border-radius:10px;padding:0 14px;display:flex;align-items:center;background:#fff;color:var(--fg-muted);font-size:14px}
+.active{border:1.5px solid var(--border-focus);background:var(--gray-50)}
+.amt{height:56px;font-size:24px;font-weight:600;color:var(--gray-200)}
+.amt span{color:var(--gray-300);margin-right:6px;font-weight:400}
+</style></head><body>
+<div class="col">
+  <div><div class="lbl">Default</div><div class="field">Select account ▾</div></div>
+  <div><div class="lbl">Active / focused</div><div class="field active">Your preferred name</div></div>
+  <div><div class="lbl">Amount</div><div class="field active amt"><span>₹</span>0.00</div></div>
+</div></body></html>
