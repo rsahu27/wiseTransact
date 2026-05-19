@@ -142,19 +142,46 @@ const OnboardingFlow = ({ onComplete }) => {
 };
 
 // ---------- Dashboard ----------
+const rollingMonthlyTrend = (txs, n = 6) => {
+  const now = new Date();
+  const months = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ label: MONTH_NAMES_SHORT[d.getMonth()], year: d.getFullYear(), month: d.getMonth(), income: 0, expense: 0 });
+  }
+  for (const t of txs) {
+    const d = parseTxDate(t.date);
+    if (!d) continue;
+    const slot = months.find(m => m.year === d.getFullYear() && m.month === d.getMonth());
+    if (!slot) continue;
+    if (t.type === "income")  slot.income  += Math.abs(t.amountNum || 0);
+    if (t.type === "expense") slot.expense += Math.abs(t.amountNum || 0);
+  }
+  return months;
+};
+
 const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName }) => {
+  const now = new Date();
+  const monthLabel = now.toLocaleString("en-IN", { month: "long" });
+  const year = now.getFullYear();
+
   const totals = totalsFor(transactions);
   const recent = transactions.slice(0, 6);
-  const months = [["Jan",.35,.25],["Feb",.6,.4],["Mar",.45,.3],["Apr",.8,.55],["May",.55,.38]];
+  const months = rollingMonthlyTrend(transactions);
+  const maxVal = months.reduce((m, r) => Math.max(m, r.income, r.expense), 0) || 1;
+
+  const incomeSourceCount = new Set(transactions.filter(t => t.type === "income").map(t => t.account)).size;
+  const expenseCount = transactions.filter(t => t.type === "expense").length;
+
   return (
     <>
       <h1 className="page-title">Good morning, {userName || "there"}</h1>
-      <p className="page-sub">Here's how May 2026 is shaping up.</p>
+      <p className="page-sub">Here's how {monthLabel} {year} is shaping up.</p>
 
       <div className="kpis">
-        <KPI kind="income"  label="Income"   amount={fmtINR(totals.income)}  delta="↑ across 3 sources"/>
-        <KPI kind="expense" label="Expenses" amount={fmtINR(totals.expense)} delta={`${transactions.filter(t=>t.type==="expense").length} transactions`}/>
-        <KPI kind="net"     label="Net"      amount={(totals.net < 0 ? "-" : "") + fmtINR(totals.net)} delta="Income − Expenses"/>
+        <KPI kind="income"  label="Income"   amount={fmtINR(totals.income)}  delta={incomeSourceCount > 0 ? `↑ across ${incomeSourceCount} ${incomeSourceCount === 1 ? "source" : "sources"}` : "No income logged yet"}/>
+        <KPI kind="expense" label="Expenses" amount={fmtINR(totals.expense)} delta={`${expenseCount} ${expenseCount === 1 ? "transaction" : "transactions"}`}/>
+        <KPI kind="net"     label="Net"      amount={(totals.net < 0 ? "-" : "") + fmtINR(Math.abs(totals.net))} delta="Income − Expenses"/>
       </div>
 
       <div className="dash-grid">
@@ -167,16 +194,16 @@ const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName }) => {
         </div>
 
         <div className="card">
-          <div className="card-head"><h3>Monthly Trend</h3></div>
+          <div className="card-head"><h3>Monthly Trend</h3><span style={{fontSize: 11, color: "var(--fg-muted)"}}>Last 6 months</span></div>
           <div className="card-body">
             <div className="trend">
-              {months.map(([m, i, e]) => (
-                <div key={m} className="col">
+              {months.map(r => (
+                <div key={`${r.year}-${r.month}`} className="col">
                   <div className="bars">
-                    <div className="bar income" style={{height: `${i*100}%`}}/>
-                    <div className="bar expense" style={{height: `${e*100}%`}}/>
+                    <div className="bar income"  style={{height: `${r.income  / maxVal * 100}%`}}/>
+                    <div className="bar expense" style={{height: `${r.expense / maxVal * 100}%`}}/>
                   </div>
-                  <div className="month">{m}</div>
+                  <div className="month">{r.label}</div>
                 </div>
               ))}
             </div>
