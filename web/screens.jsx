@@ -550,6 +550,7 @@ const AddTxModal = ({ onSave, onCancel, initial }) => {
   const [merchant, setMerchant] = useS(initial?.label || "");
   const [smsOpen, setSmsOpen] = useS(false);
   const [smsText, setSmsText] = useS("");
+  const [smsDetectedType, setSmsDetectedType] = useS(null);
   const [calOpen, setCalOpen] = useS(false);
   const calRef = useR(null);
 
@@ -567,17 +568,38 @@ const AddTxModal = ({ onSave, onCancel, initial }) => {
   const parseSms = () => {
     const text = smsText.trim();
     if (!text) return;
+    const lower = text.toLowerCase();
+
+    // Amount
     const amtMatch = text.match(/(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d+)?)/i) || text.match(/([\d,]+(?:\.\d+)?)\s*(?:rs|inr)/i);
     if (amtMatch) setAmt(amtMatch[1].replace(/,/g, ""));
-    const lower = text.toLowerCase();
+
+    // Mode
     if (/upi|gpay|phonepe|paytm/.test(lower)) setMode("UPI");
     else if (/credit card|debit card|card/.test(lower)) setMode("Card");
     else if (/imps|neft|rtgs|bank transfer/.test(lower)) setMode("Bank Transfer");
+
+    // Merchant + category
     if (/swiggy/.test(lower)) { setCategory("Food & Dining"); setMerchant("Swiggy"); }
     else if (/zomato/.test(lower)) { setCategory("Food & Dining"); setMerchant("Zomato"); }
     else if (/uber|ola/.test(lower)) { setCategory("Transport"); setMerchant(/uber/.test(lower) ? "Uber" : "Ola"); }
     else if (/amazon|flipkart|myntra/.test(lower)) { setCategory("Shopping"); setMerchant(/amazon/.test(lower) ? "Amazon" : /flipkart/.test(lower) ? "Flipkart" : "Myntra"); }
-    if (/credited|received/.test(lower)) setType("Income");
+
+    // Type detection — lock only on unambiguous signals
+    const incomeSignal  = /credited|received|salary|refund|cashback|reversal/.test(lower);
+    const expenseSignal = /debited|spent|payment for|purchase|deducted|charged/.test(lower);
+    if (incomeSignal && !expenseSignal) {
+      setType("Income");
+      setSmsDetectedType("Income");
+    } else if (expenseSignal && !incomeSignal) {
+      setType("Expense");
+      setSmsDetectedType("Expense");
+    } else {
+      // Ambiguous — default Expense, keep editable
+      setType("Expense");
+      setSmsDetectedType(null);
+    }
+
     setSmsOpen(false);
     setSmsText("");
   };
@@ -620,7 +642,7 @@ const AddTxModal = ({ onSave, onCancel, initial }) => {
         <div style={{background: "var(--emerald-50)", border: "1px solid var(--emerald-300)", borderRadius: 10, padding: 12, marginBottom: 20}}>
           <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8}}>
             <div style={{fontSize: 13, fontWeight: 600, color: "var(--emerald-700)"}}>Paste SMS</div>
-            <button onClick={() => { setSmsOpen(false); setSmsText(""); }} style={{border: 0, background: "transparent", color: "var(--emerald-700)", cursor: "pointer"}}>
+            <button onClick={() => { setSmsOpen(false); setSmsText(""); setSmsDetectedType(null); }} style={{border: 0, background: "transparent", color: "var(--emerald-700)", cursor: "pointer"}}>
               <Icon name="x" size={14}/>
             </button>
           </div>
@@ -639,10 +661,25 @@ const AddTxModal = ({ onSave, onCancel, initial }) => {
       <div className="field-group" style={{marginBottom: 16}}>
         <div className="lbl">Type</div>
         <div className="type-toggle">
-          {["Expense","Income","Transfer"].map(t => (
-            <button key={t} className={type===t?"active":""} onClick={() => setType(t)}>{t}</button>
-          ))}
+          {["Expense","Income","Transfer"].map(t => {
+            const locked = !!smsDetectedType && type !== t;
+            return (
+              <button
+                key={t}
+                className={type === t ? "active" : ""}
+                onClick={() => !locked && setType(t)}
+                style={locked ? {opacity: 0.35, cursor: "not-allowed", pointerEvents: "auto"} : {}}
+                title={locked ? "Type detected from SMS — clear SMS to change" : undefined}
+              >{t}</button>
+            );
+          })}
         </div>
+        {smsDetectedType && (
+          <div style={{display: "flex", alignItems: "center", gap: 5, marginTop: 7, fontSize: 11, color: "var(--emerald-700)"}}>
+            <Icon name="lock" size={11}/>
+            <span>Detected from SMS · clear SMS to change</span>
+          </div>
+        )}
       </div>
 
       <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}>
