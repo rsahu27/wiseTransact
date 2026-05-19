@@ -11,6 +11,7 @@ const PAGE_TITLES = {
 const App = () => {
   const [profile, setProfile] = useSA(loadProfile);
   const [page, setPage] = useSA("dashboard");
+  const [period, setPeriod] = useSA("This Month");
   const [transactions, setTransactions] = useTx();
   const [editing, setEditing] = useSA(null);
   const [showAdd, setShowAdd] = useSA(false);
@@ -55,8 +56,8 @@ const App = () => {
   };
 
   const page_el =
-    page === "dashboard"    ? <Dashboard       transactions={transactions} openDetail={setDetail} openAdd={() => setShowAdd(true)} goPage={setPage} userName={userName}/> :
-    page === "transactions" ? <TransactionsPage transactions={transactions} openDetail={setDetail}/> :
+    page === "dashboard"    ? <Dashboard       transactions={transactions} openDetail={setDetail} openAdd={() => setShowAdd(true)} goPage={setPage} userName={userName} period={period}/> :
+    page === "transactions" ? <TransactionsPage transactions={transactions} openDetail={setDetail} period={period}/> :
     page === "reports"      ? <ReportsPage     transactions={transactions} userName={userName}/> :
                               <SettingsPage    transactions={transactions} profile={profile} onProfileSave={p => { const np = {...profile, ...p}; saveProfile(np); setProfile(np); }}/>;
 
@@ -66,8 +67,9 @@ const App = () => {
       <main className="main">
         <Topbar
           crumb={<><span style={{color: "var(--fg-muted)"}}>WiseTransact</span><span className="sep">/</span>{PAGE_TITLES[page]}</>}
-          period="May 2026"
-          onPeriod={() => flash("Period picker coming soon")}
+          period={period}
+          onPeriodChange={setPeriod}
+          showPeriodPicker={page === "dashboard" || page === "transactions"}
           onAdd={() => setShowAdd(true)}
         />
         <div className="content">{page_el}</div>

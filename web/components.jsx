@@ -36,18 +36,48 @@ const Sidebar = ({ active, onNav, userName }) => {
 };
 
 // ---------- Topbar ----------
-const Topbar = ({ crumb, period, onPeriod, onAdd }) => (
-  <header className="topbar">
-    <div className="crumb">{crumb}</div>
-    <div className="spacer"/>
-    <button className="period" onClick={onPeriod}>
-      <Icon name="calendar" size={14}/> {period} <Icon name="chevronDown" size={14}/>
-    </button>
-    <button className="btn primary" onClick={onAdd}>
-      <Icon name="plus" size={16}/> Add Transaction
-    </button>
-  </header>
-);
+const PERIOD_OPTIONS = ["This Week", "This Month", "Last Month", "This Quarter", "This Financial Year", "Last Financial Year"];
+
+const Topbar = ({ crumb, period, onPeriodChange, showPeriodPicker, onAdd }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <header className="topbar">
+      <div className="crumb">{crumb}</div>
+      <div className="spacer"/>
+      {showPeriodPicker && (
+        <div style={{position: "relative"}} ref={ref}>
+          <button className="period" onClick={() => setOpen(o => !o)}>
+            <Icon name="calendar" size={14}/> {period} <Icon name="chevronDown" size={14}/>
+          </button>
+          {open && (
+            <div className="picker-pop" style={{right: 0, top: "calc(100% + 8px)", minWidth: 220, zIndex: 50}}>
+              {PERIOD_OPTIONS.map(p => (
+                <div key={p} className={`opt ${period === p ? "selected" : ""}`}
+                  onClick={() => { onPeriodChange(p); setOpen(false); }}>
+                  {period === p
+                    ? <span style={{color: "var(--emerald-700)"}}><Icon name="check" size={14}/></span>
+                    : <span style={{width: 14}}/>}
+                  {p}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <button className="btn primary" onClick={onAdd}>
+        <Icon name="plus" size={16}/> Add Transaction
+      </button>
+    </header>
+  );
+};
 
 // ---------- KPI cards ----------
 const KPI = ({ label, amount, kind, delta }) => (

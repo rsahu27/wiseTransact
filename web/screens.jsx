@@ -160,23 +160,20 @@ const rollingMonthlyTrend = (txs, n = 6) => {
   return months;
 };
 
-const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName }) => {
-  const now = new Date();
-  const monthLabel = now.toLocaleString("en-IN", { month: "long" });
-  const year = now.getFullYear();
+const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName, period }) => {
+  const filtered = filterByPeriod(transactions, period);
+  const totals   = totalsFor(filtered);
+  const recent   = transactions.slice(0, 6); // always most recent, regardless of period
+  const months   = rollingMonthlyTrend(transactions); // last 6 months for context
+  const maxVal   = months.reduce((m, r) => Math.max(m, r.income, r.expense), 0) || 1;
 
-  const totals = totalsFor(transactions);
-  const recent = transactions.slice(0, 6);
-  const months = rollingMonthlyTrend(transactions);
-  const maxVal = months.reduce((m, r) => Math.max(m, r.income, r.expense), 0) || 1;
-
-  const incomeSourceCount = new Set(transactions.filter(t => t.type === "income").map(t => t.account)).size;
-  const expenseCount = transactions.filter(t => t.type === "expense").length;
+  const incomeSourceCount = new Set(filtered.filter(t => t.type === "income").map(t => t.account)).size;
+  const expenseCount = filtered.filter(t => t.type === "expense").length;
 
   return (
     <>
       <h1 className="page-title">Good morning, {userName || "there"}</h1>
-      <p className="page-sub">Here's how {monthLabel} {year} is shaping up.</p>
+      <p className="page-sub">{periodSubtitle(period)}</p>
 
       <div className="kpis">
         <KPI kind="income"  label="Income"   amount={fmtINR(totals.income)}  delta={incomeSourceCount > 0 ? `↑ across ${incomeSourceCount} ${incomeSourceCount === 1 ? "source" : "sources"}` : "No income logged yet"}/>
@@ -219,11 +216,12 @@ const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName }) => {
 };
 
 // ---------- Transactions ----------
-const TransactionsPage = ({ transactions, openDetail }) => {
+const TransactionsPage = ({ transactions, openDetail, period }) => {
   const [filter, setFilter] = useS("All");
   const [search, setSearch] = useS("");
-  const totals = totalsFor(transactions);
-  const rows = transactions.filter(t => {
+  const periodFiltered = filterByPeriod(transactions, period);
+  const totals = totalsFor(periodFiltered);
+  const rows = periodFiltered.filter(t => {
     if (filter !== "All" && t.type !== filter.toLowerCase()) return false;
     if (search && !(t.label + " " + (t.category||"") + " " + (t.account||"")).toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -231,7 +229,7 @@ const TransactionsPage = ({ transactions, openDetail }) => {
   return (
     <>
       <h1 className="page-title">Transactions</h1>
-      <p className="page-sub">All entries for May 2026 · {rows.length} {rows.length === 1 ? "record" : "records"}</p>
+      <p className="page-sub">{period} · {rows.length} {rows.length === 1 ? "record" : "records"}</p>
 
       <div className="kpis">
         <KPI kind="income"  label="Income"   amount={fmtINR(totals.income)}/>
@@ -277,6 +275,12 @@ const filterByPeriod = (txs, period) => {
   return txs.filter(t => {
     const d = parseTxDate(t.date);
     if (!d) return false;
+    if (period === "This Week") {
+      const dow = now.getDay();
+      const diff = dow === 0 ? 6 : dow - 1; // Monday-first
+      const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+      return d >= weekStart && d <= now;
+    }
     if (period === "This Month")
       return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
     if (period === "Last Month") {
@@ -293,6 +297,24 @@ const filterByPeriod = (txs, period) => {
       return fyStart(d) === fyStart(now) - 1;
     return true;
   });
+};
+
+const periodSubtitle = (period) => {
+  const now = new Date();
+  const monthName = now.toLocaleString("en-IN", { month: "long" });
+  const year = now.getFullYear();
+  const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lmName = lm.toLocaleString("en-IN", { month: "long" });
+  const fy = fyStart(now);
+  const map = {
+    "This Week":             "This week's snapshot.",
+    "This Month":            `Here's how ${monthName} ${year} is shaping up.`,
+    "Last Month":            `Looking back at ${lmName} ${lm.getFullYear()}.`,
+    "This Quarter":          `Q${Math.floor(now.getMonth()/3)+1} ${year} at a glance.`,
+    "This Financial Year":   `FY ${fy}–${String(fy+1).slice(2)} at a glance.`,
+    "Last Financial Year":   `FY ${fy-1}–${String(fy).slice(2)} at a glance.`,
+  };
+  return map[period] || "";
 };
 
 const monthlyTrend = (txs) => {
