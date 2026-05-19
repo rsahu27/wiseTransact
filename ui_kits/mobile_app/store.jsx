@@ -2,18 +2,25 @@
 // Read by Onboarding (write/edit accounts) and AddTx (read for picker).
 const WT_STORE_KEY = "wt_accounts_v1";
 
-const DEFAULT_ACCOUNTS = [
-  { id: 1, name: "Cash", type: "Cash", isDefault: true },
-];
-
 const loadAccounts = () => {
   try {
     const raw = localStorage.getItem(WT_STORE_KEY);
-    if (!raw) return DEFAULT_ACCOUNTS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_ACCOUNTS;
-  } catch { return DEFAULT_ACCOUNTS; }
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
 };
+
+// --- Profile / onboarding store ---
+const WT_PROFILE_KEY = "wt_profile_v1";
+const loadProfile = () => {
+  try {
+    const raw = localStorage.getItem(WT_PROFILE_KEY);
+    return raw ? JSON.parse(raw) : { name: "", onboarded: false, crash: true, analytics: true };
+  } catch { return { name: "", onboarded: false, crash: true, analytics: true }; }
+};
+const saveProfile = (p) => { try { localStorage.setItem(WT_PROFILE_KEY, JSON.stringify(p)); } catch {} };
+const isOnboarded = () => loadProfile().onboarded;
 const saveAccounts = (accounts) => {
   try { localStorage.setItem(WT_STORE_KEY, JSON.stringify(accounts)); } catch {}
 };
@@ -82,4 +89,4 @@ const totalsFor = (txs) => {
   return { income, expense, net: income - expense };
 };
 
-Object.assign(window, { useAccounts, loadAccounts, saveAccounts, CATEGORIES, MODES, DEFAULT_ACCOUNTS, useTx, loadTx, saveTx, totalsFor, fmtINR, txValue });
+Object.assign(window, { useAccounts, loadAccounts, saveAccounts, CATEGORIES, MODES, useTx, loadTx, saveTx, totalsFor, fmtINR, txValue, loadProfile, saveProfile, isOnboarded });

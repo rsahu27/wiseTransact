@@ -1,14 +1,154 @@
 // WiseTransact — Web App screens
 const { useState: useS, useRef: useR, useEffect: useE } = React;
 
+// =========================================================
+// ONBOARDING FLOW (5 steps, runs once on first visit)
+// =========================================================
+
+const ONB_TOTAL = 5;
+
+const OnbProgress = ({ step }) => (
+  <div className="onb-progress">
+    {Array.from({ length: ONB_TOTAL }).map((_, i) => (
+      <div key={i} className={`onb-dot ${i < step ? "done" : i === step ? "active" : "future"}`}/>
+    ))}
+  </div>
+);
+
+const OnbShell = ({ step, title, sub, children, cta, onCta, ctaDisabled }) => (
+  <div className="onb-bg">
+    <div className="onb-card">
+      <div className="onb-logo"><img src="../assets/logo.svg" alt="WiseTransact"/></div>
+      <OnbProgress step={step}/>
+      <h2 className="onb-title">{title}</h2>
+      {sub && <p className="onb-sub">{sub}</p>}
+      {children}
+      <button className="btn primary" style={{width: "100%", height: 48, marginTop: 24}} disabled={!!ctaDisabled} onClick={onCta}>{cta}</button>
+    </div>
+  </div>
+);
+
+// Step 0: Name
+const OnbName = ({ onNext }) => {
+  const [name, setName] = useS("");
+  return (
+    <OnbShell step={0} title="What should we call you?" sub="We'll use this to personalise your experience." cta="Continue" onCta={() => onNext(name.trim())} ctaDisabled={!name.trim()}>
+      <input className="input" placeholder="Your preferred name" value={name} onChange={e => setName(e.target.value)} autoFocus style={{marginTop: 4}}
+        onKeyDown={e => e.key === "Enter" && name.trim() && onNext(name.trim())}/>
+    </OnbShell>
+  );
+};
+
+// Step 1: Accounts
+const ONB_ACCOUNT_TYPES = ["Savings", "Credit Card", "Cash", "Wallet", "Other"];
+const OnbAccounts = ({ onNext }) => {
+  const [accounts, setAccounts] = useAccounts();
+  const [showForm, setShowForm] = useS(false);
+  const [name, setName] = useS("");
+  const [type, setType] = useS("Savings");
+
+  const addAccount = () => {
+    if (!name.trim()) return;
+    setAccounts(prev => [...prev, { id: Date.now(), name: name.trim(), type }]);
+    setName(""); setType("Savings"); setShowForm(false);
+  };
+  const remove = (id) => setAccounts(prev => prev.filter(a => a.id !== id));
+
+  return (
+    <OnbShell step={1} title="Set up your accounts" sub="Add the accounts you want to track. You can change these in Settings later." cta="Continue" onCta={onNext} ctaDisabled={accounts.length === 0}>
+      <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+        {accounts.map(a => (
+          <div key={a.id} className="onb-account-row">
+            <div className="onb-account-icon"><Icon name="wallet" size={16}/></div>
+            <div style={{flex: 1}}>
+              <div style={{fontSize: 14, fontWeight: 600}}>{a.name}</div>
+              <div style={{fontSize: 12, color: "var(--fg-secondary)"}}>{a.type}</div>
+            </div>
+            <button onClick={() => remove(a.id)} style={{border: 0, background: "transparent", color: "var(--fg-muted)", cursor: "pointer", display: "flex", padding: 4}}>
+              <Icon name="x" size={14}/>
+            </button>
+          </div>
+        ))}
+        {showForm ? (
+          <div className="onb-add-form">
+            <input className="input" placeholder="Account name (e.g. HDFC Savings)" value={name} onChange={e => setName(e.target.value)} autoFocus style={{marginBottom: 10}}
+              onKeyDown={e => e.key === "Enter" && addAccount()}/>
+            <div style={{display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12}}>
+              {ONB_ACCOUNT_TYPES.map(t => (
+                <span key={t} className={`chip ${type === t ? "tag-on" : ""}`} onClick={() => setType(t)}>{t}</span>
+              ))}
+            </div>
+            <div style={{display: "flex", gap: 8}}>
+              <button className="btn ghost sm" onClick={() => { setShowForm(false); setName(""); setType("Savings"); }}>Cancel</button>
+              <button className="btn primary sm" disabled={!name.trim()} onClick={addAccount}>Add account</button>
+            </div>
+          </div>
+        ) : (
+          <button className="btn ghost" onClick={() => setShowForm(true)} style={{width: "100%", marginTop: 4}}>
+            <Icon name="plus" size={15}/> Add account
+          </button>
+        )}
+      </div>
+    </OnbShell>
+  );
+};
+
+// Step 2: Data warning
+const OnbDataWarning = ({ onNext }) => (
+  <OnbShell step={2} title="Your data stays on this device" sub="WiseTransact stores all data locally. Clearing your browser data or switching devices will permanently delete everything. There is no cloud backup." cta="I understand, Continue" onCta={onNext}>
+    <div className="onb-warn">Your data cannot be recovered if you clear browser storage or switch devices.</div>
+  </OnbShell>
+);
+
+// Step 3: Disclaimer
+const OnbDisclaimer = ({ onNext }) => (
+  <OnbShell step={3} title="Not financial advice" sub="WiseTransact helps you keep a record of your transactions. It does not file taxes, calculate tax liability, or provide financial advice." cta="Got it, Continue" onCta={onNext}>
+    <p style={{fontSize: 13, color: "var(--fg-secondary)", lineHeight: 1.65, marginTop: 4}}>Always consult a qualified Chartered Accountant for ITR filing.</p>
+  </OnbShell>
+);
+
+// Step 4: Privacy
+const OnbPrivacy = ({ onComplete }) => {
+  const [crash, setCrash] = useS(true);
+  const [analytics, setAnalytics] = useS(true);
+  return (
+    <OnbShell step={4} title="A word on privacy" sub="WiseTransact sends two anonymous data streams to improve reliability. Your transactions, amounts, and names are never sent anywhere." cta="Get Started" onCta={() => onComplete({ crash, analytics })}>
+      <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+        {[["Crash reporting", "Anonymous crash traces · default on", crash, setCrash],
+          ["Usage analytics", "No PII or transaction data · default on", analytics, setAnalytics]
+        ].map(([label, sub, on, set]) => (
+          <div key={label} className="onb-privacy-row">
+            <div style={{flex: 1}}>
+              <div style={{fontSize: 14, fontWeight: 600}}>{label}</div>
+              <div style={{fontSize: 12, color: "var(--fg-secondary)", marginTop: 3}}>{sub}</div>
+            </div>
+            <div className={`toggle ${on ? "on" : ""}`} onClick={() => set(!on)}/>
+          </div>
+        ))}
+        <p style={{fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.5}}>Both can be turned off anytime in Settings → Privacy.</p>
+      </div>
+    </OnbShell>
+  );
+};
+
+const OnboardingFlow = ({ onComplete }) => {
+  const [step, setStep] = useS(0);
+  const [name, setName] = useS("");
+  if (step === 0) return <OnbName onNext={n => { setName(n); setStep(1); }}/>;
+  if (step === 1) return <OnbAccounts onNext={() => setStep(2)}/>;
+  if (step === 2) return <OnbDataWarning onNext={() => setStep(3)}/>;
+  if (step === 3) return <OnbDisclaimer onNext={() => setStep(4)}/>;
+  return <OnbPrivacy onComplete={prefs => onComplete({ name, ...prefs })}/>;
+};
+
 // ---------- Dashboard ----------
-const Dashboard = ({ transactions, openDetail, openAdd, goPage }) => {
+const Dashboard = ({ transactions, openDetail, openAdd, goPage, userName }) => {
   const totals = totalsFor(transactions);
   const recent = transactions.slice(0, 6);
   const months = [["Jan",.35,.25],["Feb",.6,.4],["Mar",.45,.3],["Apr",.8,.55],["May",.55,.38]];
   return (
     <>
-      <h1 className="page-title">Good morning, Rishi</h1>
+      <h1 className="page-title">Good morning, {userName || "there"}</h1>
       <p className="page-sub">Here's how May 2026 is shaping up.</p>
 
       <div className="kpis">
@@ -199,11 +339,11 @@ const ReportsPage = ({ transactions }) => {
 };
 
 // ---------- Settings ----------
-const SettingsPage = ({ transactions }) => {
+const SettingsPage = ({ transactions, profile, onProfileSave }) => {
   const [accounts, setAccounts] = useAccounts();
   const [editing, setEditing] = useS(null);
-  const [crash, setCrash] = useS(true);
-  const [analytics, setAnalytics] = useS(true);
+  const [crash, setCrash] = useS(profile?.crash ?? true);
+  const [analytics, setAnalytics] = useS(profile?.analytics ?? true);
   const txCountByAccount = (name) => transactions.filter(t => t.account === name).length;
 
   const editTarget = editing === "new" ? null : accounts.find(a => a.id === editing);
@@ -225,12 +365,11 @@ const SettingsPage = ({ transactions }) => {
       <div className="section-eyebrow">Profile</div>
       <div className="settings-list">
         <div className="settings-row">
-          <div className="avatar">R</div>
+          <div className="avatar">{(profile?.name || "?")[0].toUpperCase()}</div>
           <div className="body">
-            <div className="lbl">Rishi Raj Sahu</div>
-            <div className="sub">Preferred name · tap to edit</div>
+            <div className="lbl">{profile?.name || "—"}</div>
+            <div className="sub">Preferred name</div>
           </div>
-          <Icon name="chevronRight" size={16}/>
         </div>
       </div>
 
@@ -261,14 +400,14 @@ const SettingsPage = ({ transactions }) => {
             <div className="lbl">Crash reporting</div>
             <div className="sub">Anonymous crash traces · default on</div>
           </div>
-          <div className={`toggle ${crash ? "on" : ""}`} onClick={() => setCrash(!crash)}/>
+          <div className={`toggle ${crash ? "on" : ""}`} onClick={() => { const v = !crash; setCrash(v); onProfileSave?.({ crash: v, analytics }); }}/>
         </div>
         <div className="settings-row">
           <div className="body">
             <div className="lbl">Usage analytics</div>
             <div className="sub">No PII or transaction data · default on</div>
           </div>
-          <div className={`toggle ${analytics ? "on" : ""}`} onClick={() => setAnalytics(!analytics)}/>
+          <div className={`toggle ${analytics ? "on" : ""}`} onClick={() => { const v = !analytics; setAnalytics(v); onProfileSave?.({ crash, analytics: v }); }}/>
         </div>
       </div>
 
@@ -536,4 +675,4 @@ const DetailModal = ({ tx, onClose, onDelete, onEdit }) => {
   );
 };
 
-Object.assign(window, { Dashboard, TransactionsPage, ReportsPage, SettingsPage, AddTxModal, DetailModal });
+Object.assign(window, { OnboardingFlow, Dashboard, TransactionsPage, ReportsPage, SettingsPage, AddTxModal, DetailModal });

@@ -2,6 +2,52 @@
    Desktop-first. Sidebar + topbar + main canvas.
    Reuses tokens from ../colors_and_type.css */
 
+/* ---- ONBOARDING ---- */
+.onb-bg {
+  min-height: 100vh;
+  background: var(--emerald-50);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.onb-card {
+  background: #fff;
+  border: 1px solid var(--border-default);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%; max-width: 480px;
+  box-shadow: 0 4px 32px rgba(5,120,87,0.08);
+}
+.onb-logo { display: flex; justify-content: center; margin-bottom: 28px; }
+.onb-logo img { width: 48px; height: 48px; }
+.onb-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 32px; }
+.onb-dot { height: 6px; border-radius: 9999px; background: var(--gray-200); transition: width 200ms, background 200ms; }
+.onb-dot.done { background: var(--emerald-300); width: 8px; }
+.onb-dot.active { background: var(--emerald-600); width: 24px; }
+.onb-dot.future { width: 8px; }
+.onb-title { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; margin: 0 0 10px; }
+.onb-sub { font-size: 14px; color: var(--fg-secondary); line-height: 1.65; margin: 0 0 24px; }
+.onb-warn {
+  background: var(--warning-bg); border-left: 4px solid var(--warning-fg);
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 13px; font-weight: 500; color: var(--gray-700); line-height: 1.6;
+}
+.onb-account-row {
+  padding: 12px 14px; background: var(--gray-50); border: 1px solid var(--border-default);
+  border-radius: 10px; display: flex; align-items: center; gap: 10px;
+}
+.onb-account-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--emerald-50); color: var(--emerald-700);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.onb-add-form {
+  padding: 16px; background: var(--emerald-50); border: 1px solid var(--emerald-300); border-radius: 10px;
+}
+.onb-privacy-row {
+  padding: 14px 16px; background: var(--gray-50); border: 1px solid var(--border-default);
+  border-radius: 10px; display: flex; align-items: center; gap: 12px;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--bg-app); font-family: var(--font-sans); color: var(--fg-primary); -webkit-font-smoothing: antialiased; }

@@ -2,7 +2,7 @@
 const { useState, useEffect, useRef } = React;
 
 // ---------- Sidebar ----------
-const Sidebar = ({ active, onNav }) => {
+const Sidebar = ({ active, onNav, userName }) => {
   const items = [
     { id: "dashboard",    label: "Dashboard",    icon: "home" },
     { id: "transactions", label: "Transactions", icon: "list" },
@@ -25,9 +25,9 @@ const Sidebar = ({ active, onNav }) => {
         ))}
       </nav>
       <div className="sidebar-foot">
-        <div className="avatar">R</div>
+        <div className="avatar">{(userName || "?")[0].toUpperCase()}</div>
         <div className="body">
-          <div className="name">Rishi Raj Sahu</div>
+          <div className="name">{userName || "—"}</div>
           <div className="meta">FY 2025–26</div>
         </div>
       </div>

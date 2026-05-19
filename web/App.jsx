@@ -9,15 +9,28 @@ const PAGE_TITLES = {
 };
 
 const App = () => {
+  const [profile, setProfile] = useSA(loadProfile);
   const [page, setPage] = useSA("dashboard");
   const [transactions, setTransactions] = useTx();
-  const [editing, setEditing] = useSA(null); // tx being edited | null
+  const [editing, setEditing] = useSA(null);
   const [showAdd, setShowAdd] = useSA(false);
   const [detail, setDetail] = useSA(null);
-  const [confirm, setConfirm] = useSA(null); // { tx } | null
+  const [confirm, setConfirm] = useSA(null);
   const [toast, setToast] = useSA(null);
 
   const flash = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2400); };
+
+  const handleOnboardingComplete = (data) => {
+    const p = { ...data, onboarded: true };
+    saveProfile(p);
+    setProfile(p);
+  };
+
+  if (!profile.onboarded) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete}/>;
+  }
+
+  const userName = profile.name || "there";
 
   const handleSaveTx = (tx, isEdit) => {
     if (isEdit) {
@@ -42,14 +55,14 @@ const App = () => {
   };
 
   const page_el =
-    page === "dashboard"    ? <Dashboard       transactions={transactions} openDetail={setDetail} openAdd={() => setShowAdd(true)} goPage={setPage}/> :
+    page === "dashboard"    ? <Dashboard       transactions={transactions} openDetail={setDetail} openAdd={() => setShowAdd(true)} goPage={setPage} userName={userName}/> :
     page === "transactions" ? <TransactionsPage transactions={transactions} openDetail={setDetail}/> :
     page === "reports"      ? <ReportsPage     transactions={transactions}/> :
-                              <SettingsPage    transactions={transactions}/>;
+                              <SettingsPage    transactions={transactions} profile={profile} onProfileSave={p => { const np = {...profile, ...p}; saveProfile(np); setProfile(np); }}/>;
 
   return (
     <div className="app-shell">
-      <Sidebar active={page} onNav={setPage}/>
+      <Sidebar active={page} onNav={setPage} userName={userName}/>
       <main className="main">
         <Topbar
           crumb={<><span style={{color: "var(--fg-muted)"}}>WiseTransact</span><span className="sep">/</span>{PAGE_TITLES[page]}</>}
