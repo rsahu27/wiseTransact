@@ -230,35 +230,105 @@ const TransactionsPage = ({ transactions, openDetail }) => {
   );
 };
 
+// ---------- Reports helpers ----------
+const MONTH_NAMES_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const CAT_COLORS = ["var(--amber-500)","var(--violet-500)","var(--sky-500)","var(--emerald-500)","var(--rose-500)","var(--gray-400)"];
+
+const parseTxDate = (s) => {
+  if (!s) return null;
+  const clean = s.replace(/^(Today|Yesterday),\s*/i, "");
+  const m = clean.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+  if (!m) return null;
+  const mo = MONTH_NAMES.findIndex(n => n.toLowerCase().startsWith(m[2].toLowerCase()));
+  return mo >= 0 ? new Date(parseInt(m[3]), mo, parseInt(m[1])) : null;
+};
+
+const fyStart = (d) => d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+
+const filterByPeriod = (txs, period) => {
+  const now = new Date();
+  return txs.filter(t => {
+    const d = parseTxDate(t.date);
+    if (!d) return false;
+    if (period === "This Month")
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    if (period === "Last Month") {
+      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth();
+    }
+    if (period === "This Quarter") {
+      const q = Math.floor(now.getMonth() / 3);
+      return d.getFullYear() === now.getFullYear() && Math.floor(d.getMonth() / 3) === q;
+    }
+    if (period === "This Financial Year")
+      return fyStart(d) === fyStart(now);
+    if (period === "Last Financial Year")
+      return fyStart(d) === fyStart(now) - 1;
+    return true;
+  });
+};
+
+const monthlyTrend = (txs) => {
+  const map = new Map();
+  for (const t of txs) {
+    const d = parseTxDate(t.date);
+    if (!d) continue;
+    const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,"0")}`;
+    if (!map.has(key)) map.set(key, { label: MONTH_NAMES_SHORT[d.getMonth()], income: 0, expense: 0 });
+    const e = map.get(key);
+    if (t.type === "income")  e.income  += Math.abs(t.amountNum || 0);
+    if (t.type === "expense") e.expense += Math.abs(t.amountNum || 0);
+  }
+  return [...map.entries()].sort(([a],[b]) => a.localeCompare(b)).map(([,v]) => v);
+};
+
+const categoryBreakdown = (txs) => {
+  const expenses = txs.filter(t => t.type === "expense");
+  const total = expenses.reduce((s, t) => s + Math.abs(t.amountNum || 0), 0);
+  if (!total) return [];
+  const map = new Map();
+  for (const t of expenses) {
+    const cat = t.category || "Other";
+    map.set(cat, (map.get(cat) || 0) + Math.abs(t.amountNum || 0));
+  }
+  return [...map.entries()]
+    .sort(([,a],[,b]) => b - a)
+    .slice(0, 6)
+    .map(([name, amt], i) => ({ name, pct: Math.round(amt / total * 100), amt, color: CAT_COLORS[i] }));
+};
+
 // ---------- Reports ----------
 const PERIOD_OPTIONS = ["This Month", "Last Month", "This Quarter", "This Financial Year", "Last Financial Year"];
 
-const ReportsPage = ({ transactions }) => {
+const ReportsPage = ({ transactions, userName }) => {
   const [period, setPeriod] = useS("This Month");
-  const totals = totalsFor(transactions);
-  const months = [["Jan",.35,.25],["Feb",.6,.4],["Mar",.45,.3],["Apr",.8,.55],["May",.55,.38]];
-  const cats = [
-    { name: "Food & Dining",   pct: 42, color: "var(--amber-500)" },
-    { name: "Entertainment",   pct: 22, color: "var(--violet-500)" },
-    { name: "Transport",       pct: 18, color: "var(--sky-500)" },
-    { name: "Other",           pct: 18, color: "var(--gray-300)" },
-  ];
+
+  const filtered = filterByPeriod(transactions, period);
+  const totals   = totalsFor(filtered);
+  const months   = monthlyTrend(filtered);
+  const cats     = categoryBreakdown(filtered);
+
+  const maxVal = months.reduce((m, r) => Math.max(m, r.income, r.expense), 0) || 1;
 
   const isFY = period.includes("Financial Year");
   const handleDownload = () => {
     const accounts = loadAccounts();
     generateReportPdf({
-      transactions,
-      periodLabel: period === "This Financial Year" ? "FY 2025-26" : "FY 2024-25",
-      userName: "Rishi Raj Sahu",
+      transactions: filtered,
+      periodLabel: period === "This Financial Year" ? "FY 2026-27" : "FY 2025-26",
+      userName: userName || loadProfile().name || "—",
       accounts,
     });
   };
 
+  const Empty = ({ msg }) => (
+    <div style={{padding: "40px 0", textAlign: "center", color: "var(--fg-muted)", fontSize: 13}}>{msg}</div>
+  );
+
   return (
     <>
       <h1 className="page-title">Reports</h1>
-      <p className="page-sub">In-app dashboard mirrors the year-end PDF report.</p>
+      <p className="page-sub">Totals and trends computed from your logged transactions.</p>
 
       <div style={{display: "flex", gap: 12, alignItems: "center", marginBottom: 20, flexWrap: "wrap"}}>
         <div className="field-group" style={{minWidth: 240}}>
@@ -272,48 +342,58 @@ const ReportsPage = ({ transactions }) => {
       <div className="kpis">
         <KPI kind="income"  label="Income"   amount={fmtINR(totals.income)}/>
         <KPI kind="expense" label="Expenses" amount={fmtINR(totals.expense)}/>
-        <KPI kind="net"     label="Net"      amount={(totals.net < 0 ? "-" : "") + fmtINR(totals.net)}/>
+        <KPI kind="net"     label="Net"      amount={(totals.net < 0 ? "-" : "") + fmtINR(Math.abs(totals.net))}/>
       </div>
 
       <div className="dash-grid" style={{gridTemplateColumns: "3fr 2fr"}}>
         <div className="card">
           <div className="card-head"><h3>Monthly Trend</h3></div>
           <div className="card-body">
-            <div className="trend" style={{height: 240}}>
-              {months.map(([m, i, e]) => (
-                <div key={m} className="col">
-                  <div className="bars" style={{height: 200}}>
-                    <div className="bar income" style={{height: `${i*100}%`, width: 20}}/>
-                    <div className="bar expense" style={{height: `${e*100}%`, width: 20}}/>
-                  </div>
-                  <div className="month">{m}</div>
+            {months.length === 0
+              ? <Empty msg="No transactions in this period."/>
+              : <>
+                <div className="trend" style={{height: 240}}>
+                  {months.map((r) => (
+                    <div key={r.label} className="col">
+                      <div className="bars" style={{height: 200}}>
+                        <div className="bar income"  style={{height: `${r.income  / maxVal * 100}%`, width: 20}}/>
+                        <div className="bar expense" style={{height: `${r.expense / maxVal * 100}%`, width: 20}}/>
+                      </div>
+                      <div className="month">{r.label}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="legend">
-              <span><span className="sw" style={{background: "var(--emerald-500)"}}/>Income</span>
-              <span><span className="sw" style={{background: "var(--expense-fg)"}}/>Expenses</span>
-            </div>
+                <div className="legend">
+                  <span><span className="sw" style={{background: "var(--emerald-500)"}}/>Income</span>
+                  <span><span className="sw" style={{background: "var(--expense-fg)"}}/>Expenses</span>
+                </div>
+              </>
+            }
           </div>
         </div>
 
         <div className="card">
           <div className="card-head"><h3>Expenses by Category</h3></div>
           <div className="card-body">
-            <div style={{display: "flex", height: 12, gap: 2, marginBottom: 16}}>
-              {cats.map(c => <div key={c.name} style={{flex: c.pct, background: c.color, borderRadius: 6}}/>)}
-            </div>
-            <div style={{display: "flex", flexDirection: "column", gap: 8}}>
-              {cats.map(c => (
-                <div key={c.name} style={{display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13}}>
-                  <span style={{display: "flex", alignItems: "center", gap: 10}}>
-                    <span style={{width: 10, height: 10, borderRadius: "50%", background: c.color, display: "inline-block"}}/>
-                    <span>{c.name}</span>
-                  </span>
-                  <span style={{fontVariantNumeric: "tabular-nums", color: "var(--fg-secondary)"}}>{c.pct}%</span>
+            {cats.length === 0
+              ? <Empty msg="No expense transactions in this period."/>
+              : <>
+                <div style={{display: "flex", height: 12, gap: 2, marginBottom: 16}}>
+                  {cats.map(c => <div key={c.name} style={{flex: c.pct, background: c.color, borderRadius: 6}}/>)}
                 </div>
-              ))}
-            </div>
+                <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                  {cats.map(c => (
+                    <div key={c.name} style={{display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13}}>
+                      <span style={{display: "flex", alignItems: "center", gap: 10}}>
+                        <span style={{width: 10, height: 10, borderRadius: "50%", background: c.color, display: "inline-block"}}/>
+                        <span>{c.name}</span>
+                      </span>
+                      <span style={{fontVariantNumeric: "tabular-nums", color: "var(--fg-secondary)"}}>{c.pct}% · {fmtINR(c.amt)}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            }
           </div>
         </div>
       </div>

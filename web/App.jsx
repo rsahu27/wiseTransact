@@ -57,7 +57,7 @@ const App = () => {
   const page_el =
     page === "dashboard"    ? <Dashboard       transactions={transactions} openDetail={setDetail} openAdd={() => setShowAdd(true)} goPage={setPage} userName={userName}/> :
     page === "transactions" ? <TransactionsPage transactions={transactions} openDetail={setDetail}/> :
-    page === "reports"      ? <ReportsPage     transactions={transactions}/> :
+    page === "reports"      ? <ReportsPage     transactions={transactions} userName={userName}/> :
                               <SettingsPage    transactions={transactions} profile={profile} onProfileSave={p => { const np = {...profile, ...p}; saveProfile(np); setProfile(np); }}/>;
 
   return (
